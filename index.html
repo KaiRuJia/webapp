@@ -32,13 +32,73 @@
             cursor: pointer;
             padding: 0 4px 0 4px;
         }
+        /*overlayer的样式*/
+          .ol-popup {
+              position: absolute;
+              background-color: white;
+              opacity: 0.9;
+              -webkit-filter: drop-shadow(0 1px 4px rgba(0,0,0,0.2));
+              filter: drop-shadow(0 1px 4px rgba(0,0,0,0.2));
+              padding: 15px;
+              border-radius: 10px;
+              border: 1px solid #cccccc;
+              bottom: 12px;
+              left: -50px;
+          }
+        .ol-popup:after, .ol-popup:before {
+            top: 100%;
+            border: solid transparent;
+            content: " ";
+            height: 0;
+            width: 0;
+            position: absolute;
+            pointer-events: none;
+        }
+        .ol-popup:after {
+            border-top-color: white;
+            border-width: 10px;
+            left: 48px;
+            margin-left: -10px;
+        }
+        .ol-popup:before {
+            border-top-color: #cccccc;
+            border-width: 11px;
+            left: 48px;
+            margin-left: -11px;
+        }
+        .ol-popup-closer {
+            text-decoration: none;
+            position: absolute;
+            top: 2px;
+            right: 8px;
+        }
+        .ol-popup-closer:after {
+            content: "✖";
+        }
     </style>
 </head>
 <body>
-<div id="map" tabindex="-1"></div>
+<div id="map" tabindex="-1">
+    <div id="popup" class="ol-popup">
+        <a href="#" id="popup-closer" class="ol-popup-closer"></a>
+        <div id="popup-content" style="width:200px; height:100px;"></div>
+    </div>
+</div>
 <script src="./v4.6.4-dist/ol-debug.js"></script>
 <script src="./jquery-1.10.2.min.js"></script>
 <script>
+    //弹出框需要的部件
+    var container = document.getElementById('popup');
+    var content = document.getElementById('popup-content');
+    var closer = document.getElementById('popup-closer');
+
+    var overlay = new ol.Overlay( ({
+        element: container,
+        autoPan: true,
+        autoPanAnimation: {
+            duration: 250   //当Popup超出地图边界时，为了Popup全部可见，地图移动的速度.
+        }
+    }));
 
     var view = new ol.View({
         center: [1810028, -1614350],
@@ -122,6 +182,9 @@
     })
     //创建layer使用的style function ,根据feature的自定义type，放回不同的样式
     var layerStyleFunction = function (feature, resolution) {
+        var name = feature.get('name');
+        console.log(name);
+        // style.getText().setText(feature.get('name'));
         var name = feature.values_.name;
         var style = null;
         if (name.indexOf('A') != -1) {
@@ -208,7 +271,28 @@
     //         projection:'EPSG:3857'
     //     })
     // })
-
+    map.on('click',function(evt) {
+        var pixel = map.getEventPixel(evt.originalEvent);
+        var feature = map.forEachFeatureAtPixel(pixel,function(feature,layer) {
+            return feature;
+        })
+        var coordinate = evt.coordinate;
+        var hdms = ol.coordinate.toStringHDMS(ol.proj.transform(coordinate,'EPSG:3857','EPSG:4326'));
+        if(feature !== undefined) {
+            var name = feature.get('name');
+            content.innerHTML = '<p>坐标：</p><code>' + hdms + '</code><p>区域：'+ name + '</p>';
+        } else {
+            content.innerHTML = '<p>坐标：</p><code>' + hdms + '</code><p>大海</p>';
+        }
+        overlay.setPosition(coordinate);
+        map.addOverlay(overlay);
+    })
+    //隐藏弹出框的函数
+    closer.onclick = function() {
+        overlay.setPosition(undefined);
+        closer.blur();
+        return false;
+    }
 </script>
 </body>
 </html>
