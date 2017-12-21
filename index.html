@@ -32,19 +32,21 @@
             cursor: pointer;
             padding: 0 4px 0 4px;
         }
+
         /*overlayer的样式*/
-          .ol-popup {
-              position: absolute;
-              background-color: white;
-              opacity: 0.9;
-              -webkit-filter: drop-shadow(0 1px 4px rgba(0,0,0,0.2));
-              filter: drop-shadow(0 1px 4px rgba(0,0,0,0.2));
-              padding: 15px;
-              border-radius: 10px;
-              border: 1px solid #cccccc;
-              bottom: 12px;
-              left: -50px;
-          }
+        .ol-popup {
+            position: absolute;
+            background-color: white;
+            opacity: 0.9;
+            -webkit-filter: drop-shadow(0 1px 4px rgba(0, 0, 0, 0.2));
+            filter: drop-shadow(0 1px 4px rgba(0, 0, 0, 0.2));
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid #cccccc;
+            bottom: 12px;
+            left: -50px;
+        }
+
         .ol-popup:after, .ol-popup:before {
             top: 100%;
             border: solid transparent;
@@ -54,24 +56,28 @@
             position: absolute;
             pointer-events: none;
         }
+
         .ol-popup:after {
             border-top-color: white;
             border-width: 10px;
             left: 48px;
             margin-left: -10px;
         }
+
         .ol-popup:before {
             border-top-color: #cccccc;
             border-width: 11px;
             left: 48px;
             margin-left: -11px;
         }
+
         .ol-popup-closer {
             text-decoration: none;
             position: absolute;
             top: 2px;
             right: 8px;
         }
+
         .ol-popup-closer:after {
             content: "✖";
         }
@@ -87,105 +93,11 @@
 <script src="./v4.6.4-dist/ol-debug.js"></script>
 <script src="./jquery-1.10.2.min.js"></script>
 <script>
-    //弹出框需要的部件
-    var container = document.getElementById('popup');
-    var content = document.getElementById('popup-content');
-    var closer = document.getElementById('popup-closer');
-
-    var overlay = new ol.Overlay( ({
-        element: container,
-        autoPan: true,
-        autoPanAnimation: {
-            duration: 250   //当Popup超出地图边界时，为了Popup全部可见，地图移动的速度.
-        }
-    }));
-
-    var view = new ol.View({
-        center: [1810028, -1614350],
-        zoom: 5,
-        projection: 'EPSG:3857',
-    })
-    //创建一个使用Open Street Map地图源的瓦片图层
-    var layerBase = new ol.layer.Tile({
-        source: new ol.source.OSM(),
-        zIndex: 0
-    })
-    var layerVectorWorld = '';
-    var layerVectorAngola = '';
-    //创建地图
-    var map = new ol.Map({
-        //设置地图图层
-        // 让所有的zoom开关都设置为false
-        interactions: ol.interaction.defaults({
-            doubleClickZoom: false,
-            mouseWheelZoom: false,
-            shiftDragZoom: false,
-            pinchZoom: false
-        }),
-        layers: [layerBase],
-        //设置显示地图的视图
-        view: view,
-        //让id为map的div作为地图的容器
-        target: 'map'
-    });
-
-    $.ajax({
-        url:"http://localhost:63342/learnWorkPlace/openLayers/JSON/World.json",
-        success:function(data) {
-            layerVectorWorld = new ol.layer.Vector({
-                source:new ol.source.Vector({
-                    features:(new ol.format.GeoJSON()).readFeatures(data,{
-                        dataProjection:'EPSG:4326',//设定JSON数据使用的坐标系
-                        featureProjection:'EPSG:3857'//设定当前地图使用的feature的坐标系
-                    })
-                }),
-                // 设置样式，颜色为红色，线条粗细为1个像素
-                style: new ol.style.Style({
-                    stroke: new ol.style.Stroke({
-                        color: 'rgba(0,0,0,0.5)',
-                        width:'2'
-                    }),
-                    fill: new ol.style.Fill({
-                        color:'rgba(255,255,255,0.3)'
-                    }),
-                }) ,// 应用上面创建的 style function,
-                zIndex:2
-            })
-            map.addLayer(layerVectorWorld);
-        },
-        error:function(e) {
-            console.log('请求失败');
-        }
-    })
-    $.ajax({
-        url: "http://localhost:63342/learnWorkPlace/openLayers/JSON/Angola.json",
-        success: function (data) {
-            layerVectorAngola = new ol.layer.Vector({
-                source: new ol.source.Vector({
-                    features: (new ol.format.GeoJSON()).readFeatures(data, {
-                        dataProjection: 'EPSG:4326',//设定JSON数据使用的坐标系
-                        featureProjection: 'EPSG:3857'//设定当前地图使用的feature的坐标系
-                    })
-                }),
-                // 设置样式，颜色为红色，线条粗细为1个像素
-                style: layerStyleFunction, // 应用上面创建的 style function
-                zIndex: 3
-            })
-            map.addLayer(layerVectorAngola);
-            map.on('click', function (e) {
-                console.log(0);
-            })
-        },
-        error: function (e) {
-            console.log('请求失败');
-        }
-    })
     //创建layer使用的style function ,根据feature的自定义type，放回不同的样式
     var layerStyleFunction = function (feature, resolution) {
         var name = feature.get('name');
-        console.log(name);
-        // style.getText().setText(feature.get('name'));
-        var name = feature.values_.name;
+        var style = new ol.style.Style();
+        style.setText(feature.get('name'));
         var style = null;
         if (name.indexOf('A') != -1) {
             changStyle1('rgba(255,182,193,0.5)');
@@ -224,6 +136,12 @@
                 fill: new ol.style.Fill({
                     color: color
                 }),
+                text:new ol.style.Text({
+                    text:feature.get('name'),
+                    fill:new ol.style.Fill({
+                        color:'#fff'
+                    })
+                })
             });
         }
 
@@ -237,7 +155,73 @@
 
         return [style];
     }
+    //弹出框需要的部件
+    var container = document.getElementById('popup');
+    var content = document.getElementById('popup-content');
+    var closer = document.getElementById('popup-closer');
 
+    var overlay = new ol.Overlay(({
+        element: container,
+        autoPan: true,
+        autoPanAnimation: {
+            duration: 250   //当Popup超出地图边界时，为了Popup全部可见，地图移动的速度.
+        }
+    }));
+
+    var view = new ol.View({
+        center: [1810028, -1614350],
+        zoom: 5,
+        projection: 'EPSG:3857',
+    })
+    //创建一个使用Open Street Map地图源的瓦片图层
+    var layerBase = new ol.layer.Tile({
+        source: new ol.source.OSM(),
+        zIndex: 0
+    });
+    //各个区域的轮廓矢量图层
+    var layerVectorWorld =  new ol.layer.Vector({
+        source: new ol.source.Vector({
+            url:'./JSON/World.json',
+            format:new ol.format.GeoJSON()
+        }),
+        // 设置样式，颜色为红色，线条粗细为1个像素
+        style: new ol.style.Style({
+            stroke: new ol.style.Stroke({
+                color: 'rgba(0,0,0,0.5)',
+                width: '2'
+            }),
+            fill: new ol.style.Fill({
+                color: 'rgba(255,255,255,0.3)'
+            }),
+        }),// 应用上面创建的 style function,
+        zIndex: 2
+    });
+    //安哥拉各个区域的矢量图层
+    var layerVectorAngola = new ol.layer.Vector({
+        source: new ol.source.Vector({
+            url:'./JSON/Angola.json',
+            format:new ol.format.GeoJSON()
+        }),
+        // 设置样式，颜色为红色，线条粗细为1个像素
+        style: layerStyleFunction, // 应用上面创建的 style function
+        zIndex: 3
+    });
+    //创建地图
+    var map = new ol.Map({
+        //设置地图图层
+        // 让所有的zoom开关都设置为false
+        interactions: ol.interaction.defaults({
+            doubleClickZoom: false,
+            mouseWheelZoom: false,
+            shiftDragZoom: false,
+            pinchZoom: false
+        }),
+        layers: [layerBase,layerVectorWorld,layerVectorAngola],
+        //设置显示地图的视图
+        view: view,
+        //让id为map的div作为地图的容器
+        target: 'map'
+    });
 
     //在viewport节点下添加一个分享按钮
     var viewport = map.getViewport();
@@ -252,10 +236,37 @@
         style: new ol.style.Style({
             fill: new ol.style.Fill({
                 color: 'rgba(255,255,0,0.3)'
-            })
+            }),
+
         })
     });
     map.addInteraction(selectClick);
+
+
+    map.on('click', function (evt) {
+        var pixel = map.getEventPixel(evt.originalEvent);
+        var feature = map.forEachFeatureAtPixel(pixel, function (feature, layer) {
+            return feature;
+        })
+        var coordinate = evt.coordinate;
+        var hdms = ol.coordinate.toStringHDMS(ol.proj.transform(coordinate, 'EPSG:3857', 'EPSG:4326'));
+        if (feature !== undefined) {
+            var name = feature.get('name');
+            content.innerHTML = '<p>坐标：</p><code>' + hdms + '</code><p>区域：' + name + '</p>';
+        } else {
+            content.innerHTML = '<p>坐标：</p><code>' + hdms + '</code><p>大海</p>';
+        }
+        overlay.setPosition(coordinate);
+        map.addOverlay(overlay);
+    })
+    //隐藏弹出框的函数
+    closer.onclick = function () {
+        overlay.setPosition(undefined);
+        closer.blur();
+        return false;
+    }
+
+
 
     // 监听地图点击事件
     // map.on('click',function(event) {
@@ -271,28 +282,6 @@
     //         projection:'EPSG:3857'
     //     })
     // })
-    map.on('click',function(evt) {
-        var pixel = map.getEventPixel(evt.originalEvent);
-        var feature = map.forEachFeatureAtPixel(pixel,function(feature,layer) {
-            return feature;
-        })
-        var coordinate = evt.coordinate;
-        var hdms = ol.coordinate.toStringHDMS(ol.proj.transform(coordinate,'EPSG:3857','EPSG:4326'));
-        if(feature !== undefined) {
-            var name = feature.get('name');
-            content.innerHTML = '<p>坐标：</p><code>' + hdms + '</code><p>区域：'+ name + '</p>';
-        } else {
-            content.innerHTML = '<p>坐标：</p><code>' + hdms + '</code><p>大海</p>';
-        }
-        overlay.setPosition(coordinate);
-        map.addOverlay(overlay);
-    })
-    //隐藏弹出框的函数
-    closer.onclick = function() {
-        overlay.setPosition(undefined);
-        closer.blur();
-        return false;
-    }
 </script>
 </body>
 </html>
