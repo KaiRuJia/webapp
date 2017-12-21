@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="./v4.6.4-dist/ol.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0
+        }
+
+        .ol-zoom .ol-zoom-in {
+            background-color: #0000ff;
+            color: #ff0000;
+        }
+
+        #map {
+            width: 800px;
+            height: 500px;
+        }
+
+        .share {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            border: 1px;
+            border-color: #333;
+            background-color: #339999;
+            color: #fff;
+            box-shadow: 0px 0px 2px #666;
+            cursor: pointer;
+            padding: 0 4px 0 4px;
+        }
+    </style>
+</head>
+<body>
+<div id="map" tabindex="-1"></div>
+<script src="./v4.6.4-dist/ol-debug.js"></script>
+<script src="./jquery-1.10.2.min.js"></script>
+<script>
+
+    var view = new ol.View({
+        center: [1810028, -1614350],
+        zoom: 5,
+        projection: 'EPSG:3857',
+    })
+    //创建一个使用Open Street Map地图源的瓦片图层
+    var layerBase = new ol.layer.Tile({
+        source: new ol.source.OSM(),
+        zIndex: 0
+    })
+    var layerVectorWorld = '';
+    var layerVectorAngola = '';
+    //创建地图
+    var map = new ol.Map({
+        //设置地图图层
+        // 让所有的zoom开关都设置为false
+        interactions: ol.interaction.defaults({
+            doubleClickZoom: false,
+            mouseWheelZoom: false,
+            shiftDragZoom: false,
+            pinchZoom: false
+        }),
+        layers: [layerBase],
+        //设置显示地图的视图
+        view: view,
+        //让id为map的div作为地图的容器
+        target: 'map'
+    });
+
+    $.ajax({
+        url:"http://localhost:63342/learnWorkPlace/openLayers/JSON/World.json",
+        success:function(data) {
+            layerVectorWorld = new ol.layer.Vector({
+                source:new ol.source.Vector({
+                    features:(new ol.format.GeoJSON()).readFeatures(data,{
+                        dataProjection:'EPSG:4326',//设定JSON数据使用的坐标系
+                        featureProjection:'EPSG:3857'//设定当前地图使用的feature的坐标系
+                    })
+                }),
+                // 设置样式，颜色为红色，线条粗细为1个像素
+                style: new ol.style.Style({
+                    stroke: new ol.style.Stroke({
+                        color: 'rgba(0,0,0,0.5)',
+                        width:'2'
+                    }),
+                    fill: new ol.style.Fill({
+                        color:'rgba(255,255,255,0.3)'
+                    }),
+                }) ,// 应用上面创建的 style function,
+                zIndex:2
+            })
+            map.addLayer(layerVectorWorld);
+        },
+        error:function(e) {
+            console.log('请求失败');
+        }
+    })
+    $.ajax({
+        url: "http://localhost:63342/learnWorkPlace/openLayers/JSON/Angola.json",
+        success: function (data) {
+            layerVectorAngola = new ol.layer.Vector({
+                source: new ol.source.Vector({
+                    features: (new ol.format.GeoJSON()).readFeatures(data, {
+                        dataProjection: 'EPSG:4326',//设定JSON数据使用的坐标系
+                        featureProjection: 'EPSG:3857'//设定当前地图使用的feature的坐标系
+                    })
+                }),
+                // 设置样式，颜色为红色，线条粗细为1个像素
+                style: layerStyleFunction, // 应用上面创建的 style function
+                zIndex: 3
+            })
+            map.addLayer(layerVectorAngola);
+            map.on('click', function (e) {
+                console.log(0);
+            })
+        },
+        error: function (e) {
+            console.log('请求失败');
+        }
+    })
+    //创建layer使用的style function ,根据feature的自定义type，放回不同的样式
+    var layerStyleFunction = function (feature, resolution) {
+        var name = feature.values_.name;
+        var style = null;
+        if (name.indexOf('A') != -1) {
+            changStyle1('rgba(255,182,193,0.5)');
+        } else if (name.indexOf('B') != -1) {
+            changStyle1('rgba(147,112,219,0.5)');
+        } else if (name.indexOf('C') != -1) {
+            changStyle1('rgba(100,149,237,0.5)');
+        } else if (name.indexOf('D') != -1) {
+            changStyle1('rgba(135,206,250,0.5)');
+        } else if (name.indexOf('E') != -1) {
+            changStyle1('rgba(152,251,152,0.5)');
+        } else if (name.indexOf('F') != -1) {
+            changStyle1('rgba(255,255,0,0.5)');
+        } else if (name.indexOf('U') != -1) {
+            changStyle1('rgba(240,128,128,0.5)');
+        } else if (name.indexOf('H') != -1) {
+            changStyle1('rgba(165,42,42,0.5)');
+        } else if (name.indexOf('M') != -1) {
+            changStyle1('rgba(255,140,0,0.5)');
+        } else if (name.indexOf('L') != -1) {
+            changStyle1('rgba(160,82,45,0.5)');
+        } else if (name.indexOf('N') != -1) {
+            changStyle1('rgba(85,107,47,0.5)');
+        } else if (name.indexOf('Z') != -1) {
+            changStyle1('rgba(50,205,50,0.5)');
+        } else {
+            changStyle();
+        }
+
+        function changStyle1(color) {
+            style = new ol.style.Style({
+                stroke: new ol.style.Stroke({
+                    color: 'rgba(255,255,255,0.5)',
+                    width: '2'
+                }),
+                fill: new ol.style.Fill({
+                    color: color
+                }),
+            });
+        }
+
+        function changStyle() {
+            style = new ol.style.Style({
+                fill: new ol.style.Fill({
+                    color: 'rgba(255,255,255,0.3)'
+                }),
+            });
+        }
+
+        return [style];
+    }
+
+
+    //在viewport节点下添加一个分享按钮
+    var viewport = map.getViewport();
+    $(viewport).append('<div id="share" class="share">分享地图</div>');
+    //监听按钮点击事件，执行相关操作
+    document.getElementById('share').onclick = function () {
+        alert('分享当前地图给朋友')
+    }
+
+    var selectClick = new ol.interaction.Select({
+        condition: ol.events.condition.pointerMove,
+        style: new ol.style.Style({
+            fill: new ol.style.Fill({
+                color: 'rgba(255,255,0,0.3)'
+            })
+        })
+    });
+    map.addInteraction(selectClick);
+
+    // 监听地图点击事件
+    // map.on('click',function(event) {
+    //     var coordinate = event.coordinate;
+    //     view.animate({
+    //         center:coordinate,
+    //         duration:2000,
+    //         easing:ol.easing.easeOut,
+    //         zoom: view.getZoom() + 1,
+    //         // 限制地图缩放最大级别为14，最小级别为10
+    //         minZoom: 10,
+    //         maxZoom: 14,
+    //         projection:'EPSG:3857'
+    //     })
+    // })
+
+</script>
+</body>
+</html>
