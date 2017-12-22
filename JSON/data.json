@@ -1,0 +1,65 @@
+{
+  "code":200,
+  "data": [
+    {
+      "name": "Angola",
+      "id": 191,
+      "value": 10
+    },
+    {
+      "name": "Brazil",
+      "id": 189,
+      "value": 23
+    },
+    {
+      "name": "Burundi",
+      "id": 195,
+      "value": 34
+    },
+    {
+      "name": "China",
+      "id": 187,
+      "value": 44
+    },
+    {
+      "name": "Congo",
+      "id": 194,
+      "value": 55
+    },
+    {
+      "name": "United States of America",
+      "id": 184,
+      "value": 66
+    },
+    {
+      "name": "Germany",
+      "id": 185,
+      "value":77
+    },
+    {
+      "name": "India",
+      "id": 193,
+      "value": 88
+    },
+    {
+      "name": "Japan",
+      "id": 186,
+      "value": 99
+    },
+    {
+      "name": "Nigeria",
+      "id": 192,
+      "value": 11
+    },
+    {
+      "name": "Portugal",
+      "id": 188,
+      "value": 21
+    },
+    {
+      "name": "South Africa",
+      "id": 190,
+      "value": 25.17
+    }
+  ]
+}

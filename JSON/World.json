@@ -14007,7 +14007,7 @@
       "type": "Feature",
       "id": "COD",
       "properties": {
-        "name": "Democratic Republic of the Congo"
+        "name": "Republic of the Congo"
       },
       "geometry": {
         "type": "Polygon",
@@ -14509,7 +14509,7 @@
       "type": "Feature",
       "id": "COG",
       "properties": {
-        "name": "Republic of the Congo"
+        "name": "Congo"
       },
       "geometry": {
         "type": "Polygon",
